@@ -30,12 +30,12 @@ namespace BaseSpiderForImgWeb
                 return false;
             }
         }
-        public virtual bool DownLoadImg(string imgUrl, string fileName)
+        public virtual async Task<bool> DownLoadImg(string imgUrl, string fileName)
         {
             try
             {
                 WebClient c = new WebClient();
-                c.DownloadFile(imgUrl, fileName);
+                await c.DownloadFileTaskAsync(imgUrl, fileName);
                 return true;
             }
             catch (Exception e)
@@ -43,9 +43,9 @@ namespace BaseSpiderForImgWeb
                 return false;
             }
         }
-        public abstract IEnumerable<string> GetAllImgUrlInTuJi(string tuJiUrl);
-        public abstract IEnumerable<string> GetAllListPageUrl(string mainPageUrl);
-        public abstract string GetFileSavePath(string tuJiUrl);
-        public abstract IEnumerable<string> GetTuJiFromListPageUrl(string listPageUrl);
+        public abstract Task<IEnumerable<string>> _3GetAllImgUrlInTuJi(string tuJiUrl);
+        public abstract Task<IEnumerable<string>> _1GetAllListPageUrlFromMainPage(string mainPageUrl);
+        public abstract Task<string> GetFileSavePath(string tuJiUrl);
+        public abstract Task<IEnumerable<string>> _2GetTuJiFromListPageUrl(string listPageUrl);
     }
 }

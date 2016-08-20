@@ -15,12 +15,12 @@ namespace BaseSpiderForImgWeb
          4.下载图片的方法，可以由本抽象类提供默认实现
          5.获取每张图片的存放地址
          */
-        IEnumerable<string> GetAllListPageUrl(string mainPageUrl);
+        Task<IEnumerable<string>> _1GetAllListPageUrlFromMainPage(string mainPageUrl);
 
-        IEnumerable<string> GetTuJiFromListPageUrl(string listPageUrl);
-        IEnumerable<string> GetAllImgUrlInTuJi(string tuJiUrl);
-        bool DownLoadImg(string imgUrl,string fileName);
+        Task<IEnumerable<string>> _2GetTuJiFromListPageUrl(string listPageUrl);
+        Task<IEnumerable<string>> _3GetAllImgUrlInTuJi(string tuJiUrl);
+        Task<bool> DownLoadImg(string imgUrl,string fileName);
         Task<bool> DownLoadImgAsync(string imgUrl, string fileName);
-        string GetFileSavePath(string tuJiUrl);
+        Task<string> GetFileSavePath(string tuJiUrl);
     }
 }
