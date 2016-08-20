@@ -35,5 +35,11 @@ namespace SpiderForMZTuCom
         {
             throw new NotImplementedException();
         }
+
+        public static string GetHtmlPage(string url )
+        {
+
+            return "";
+        }
     }
 }
