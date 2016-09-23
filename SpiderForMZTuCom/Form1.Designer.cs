@@ -171,6 +171,7 @@
             this.Controls.Add(this.btnInitDownLoad);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "MainForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "图片爬取软件";
             this.ResumeLayout(false);
             this.PerformLayout();

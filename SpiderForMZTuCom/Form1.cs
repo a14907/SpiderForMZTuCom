@@ -192,6 +192,12 @@ namespace SpiderForMZTuCom
 
         private async void btnDownload_Click(object sender, EventArgs e)
         {
+            await DownLoadTuJi();
+
+        }
+
+        private async Task DownLoadTuJi()
+        {
             string kw = lbShow.Text.Trim();
             if (string.IsNullOrEmpty(kw))
             {
@@ -229,17 +235,17 @@ join  FileLocNames f on m.FLocId=f.FLocId where f.FileLocation like  '%" + kw + 
                         }
                         await c.DownloadFileTaskAsync(url, folder + "\\" + kw + "\\" + Path.GetFileName(url));
                         index++;
-                        textBox4.Text = dt.Rows.Count+"/"+index;
+                        textBox4.Text = dt.Rows.Count + "/" + index;
                     }
                 }
 
                 MessageBox.Show("下载完成！");
             }
-
         }
 
         private void button1_Click_1(object sender, EventArgs e)
         {
+            lbShow.Items.Clear();
             string kw = tbKeyWords.Text.Trim();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["MyImgDb"].ToString()))
             {

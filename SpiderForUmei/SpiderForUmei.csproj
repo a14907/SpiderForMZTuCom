@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{CAFB758B-B858-471B-941A-6F55C8A5862F}</ProjectGuid>
+    <ProjectGuid>{A141F935-BD5A-4C78-A3A7-4520E3D1DA94}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SpiderForMZTuCom</RootNamespace>
-    <AssemblyName>SpiderForMZTuCom</AssemblyName>
+    <RootNamespace>SpiderForUmei</RootNamespace>
+    <AssemblyName>SpiderForUmei</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -93,7 +93,6 @@
       <Name>BaseSpiderForImgWeb</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
