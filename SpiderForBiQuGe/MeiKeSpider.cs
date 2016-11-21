@@ -8,16 +8,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using HtmlAgilityPack;
 
 namespace SpiderForBiQuGe
 {
-    public partial class Form1 : Form
+    public partial class MeiKeSpider : Form
     {
-        public Form1()
+        public MeiKeSpider()
         {
             InitializeComponent();
         }
+
+        private SpiderHelper spid = new SpiderHelper();
         private string url;
         private string folderPath;
 
@@ -39,43 +40,44 @@ namespace SpiderForBiQuGe
 
         private async Task Process()
         {
-            SpiderHelperForBQG spid = new SpiderHelperForBQG(this.tbCookie.Text.Trim());
             var p = await spid.GetNovelName(url);
             var filename = Path.Combine(folderPath, p.fname);//文件名
             HtmlAgilityPack.HtmlDocument doc = p.doc;
             var cs = spid._01_GetAllZhangJieUrl(doc);
-            using (StreamWriter sw = new StreamWriter(filename, false, Encoding.UTF8))
+            try
             {
-                int index = 0;
-                foreach (var c in cs)
+                using (StreamWriter sw = new StreamWriter(filename, false, Encoding.UTF8))
                 {
-                    try
+                    int index = 0;
+                    foreach (var c in cs)
                     {
-                        index++;
-                        if (!string.IsNullOrEmpty(tbStartPos.Text) && int.Parse( this.tbStartPos.Text.Trim())>index)
+                        try
                         {
-                            continue;
+                            index++;
+                            sw.WriteLine(c.Item1);
+                            await spid._02_GetZhangJieContent(c.Item2, sw);
+                            //tbProgress.Text = cs.Count() + "/" + index;
+                            tbProgress.Invoke(new Action(() =>
+                            {
+                                tbProgress.Text = cs.Count() + "/" + index;
+                            }));
+                            await sw.FlushAsync();
                         }
-                        sw.WriteLine(c.Item1);
-                        await spid._02_GetZhangJieContent("http://www.biquge.com" + c.Item2, sw);
-                        //tbProgress.Text = cs.Count() + "/" + index;
-                        tbProgress.Invoke(new Action(() =>
+                        catch (Exception ex)
                         {
-                            tbProgress.Text = cs.Count() + "/" + index;
-                        }));
+                            sw.Write("缺失此章节！");
+                            sw.WriteLine();
+                            //throw;
+                        }
                     }
-                    catch (Exception ex)
-                    {
-                        sw.Write("缺失此章节！");
-                        sw.WriteLine();
-                        //throw;
-                    }
-                    sw.Flush();
                 }
+            }
+            catch (Exception ex)
+            {
+
+                throw;
             }
             MessageBox.Show("下载完毕！");
         }
     }
-
-
 }

@@ -51,7 +51,7 @@ namespace SpiderForMZTuCom
         public async Task<string> GetTuJiName(string url)
         {
             var d = await GetHtmlDocumentFromUrl(url);
-            return HttpUtility.HtmlDecode( d.DocumentNode.SelectNodes("//div[@class='ArticleTitle']/strong").First().InnerText);
+            return HttpUtility.HtmlDecode(d.DocumentNode.SelectNodes("//div[@class='ArticleTitle']/strong").First().InnerText);
         }
 
         private IEnumerable<string> ProduceUrlCollection(string t, int count, string strInEnd = "", int buNum = 2)
@@ -121,9 +121,15 @@ namespace SpiderForMZTuCom
             List<string> imgs = new List<string>();
             foreach (var u in us)
             {
-                var pageDoc = await GetHtmlDocumentFromUrl(u);
-                var imgUrl = pageDoc.DocumentNode.SelectNodes("//div[@class='ImageBody']/p/img").ToList().Select(m => m.GetAttributeValue("src", ""));//.GetAttributeValue("src","");
-                imgs.AddRange(imgUrl);
+                try
+                {
+                    var pageDoc = await GetHtmlDocumentFromUrl(u);
+                    var imgUrl = pageDoc.DocumentNode.SelectNodes("//div[@class='ImageBody']/p/img").ToList().Select(m => m.GetAttributeValue("src", ""));//.GetAttributeValue("src","");
+                    imgs.AddRange(imgUrl);
+                }
+                catch (Exception)
+                {
+                }
             }
             //3.返回
             return imgs;
@@ -149,7 +155,7 @@ namespace SpiderForMZTuCom
                 var d = await GetHtmlDocumentFromUrl(tuJiUrl);
                 var baseNode = d.DocumentNode.SelectSingleNode("//div[@class='ImageBody']");
                 var firstUrl = baseNode.SelectNodes("//img").First().GetAttributeValue("src", "");
-                var templateUrl = new Regex("[0-9]+[.]jpg").Replace(firstUrl,"");
+                var templateUrl = new Regex("[0-9]+[.]jpg").Replace(firstUrl, "");
                 //2.获取总数
                 var totalCount = count;
                 //3.拼接集合返回
