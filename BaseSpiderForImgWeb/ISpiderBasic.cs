@@ -21,6 +21,6 @@ namespace BaseSpiderForImgWeb
         Task<IEnumerable<string>> _3GetAllImgUrlInTuJi(string tuJiUrl);
         Task<bool> DownLoadImg(string imgUrl,string fileName);
         Task<bool> DownLoadImgAsync(string imgUrl, string fileName);
-        Task<string> GetFileSavePath(string tuJiUrl);
+        Task<string> GetFileSaveDirectoryName(string tuJiUrl);
     }
 }

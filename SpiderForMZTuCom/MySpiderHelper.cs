@@ -1,18 +1,20 @@
 ﻿using BaseSpiderForImgWeb;
 using HtmlAgilityPack;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 using System.Configuration;
 using System.Web;
+using System.Text;
+using System.IO.Compression;
+using System.Threading;
+using System;
 
 namespace SpiderForMZTuCom
 {
-    public class MySpiderHelper : SpiderHelperBase
+    public class MySpiderHelper
     {
         /*
         1.获取全部的列表页的地址，参数为网站首页
@@ -23,26 +25,18 @@ namespace SpiderForMZTuCom
         */
 
 
-        public override async Task<IEnumerable<string>> _1GetAllListPageUrlFromMainPage(string mainPageUrl)
+        public async Task<IEnumerable<string>> _1GetAllListPageUrlFromMainPage(string mainPageUrl)
         {
-            try
-            {
-                //1.先获取模板
-                var d = await GetHtmlDocumentFromUrl(mainPageUrl);
-                var baseNode = GetDanDuNode(d.DocumentNode.SelectSingleNode("//div[@class='nav-links']"));
-                var firstUrl = baseNode.SelectNodes("//a").First().GetAttributeValue("href", "");
-                var templateUrl = firstUrl.Substring(0, firstUrl.Length - 1);
-                //2.获取总页数
-                var lastUrl = baseNode.SelectNodes("//a")[2].InnerText;
-                var totalCount = int.Parse(lastUrl);
-                //3.拼接集合返回
-                return ProduceUrlCollection(templateUrl, totalCount);
-            }
-            catch (Exception ex)
-            {
-
-                throw;
-            }
+            //1.先获取模板
+            var d = await GetHtmlDocumentFromUrl(mainPageUrl);
+            var baseNode = GetDanDuNode(d.DocumentNode.SelectSingleNode("//div[@class='nav-links']"));
+            var firstUrl = baseNode.SelectNodes("//a").First().GetAttributeValue("href", "").TrimEnd('/');
+            var templateUrl = firstUrl.Substring(0, firstUrl.Length - 1);
+            //2.获取总页数
+            var lastUrl = baseNode.SelectNodes("//a")[3].InnerText;
+            var totalCount = int.Parse(lastUrl);
+            //3.拼接集合返回
+            return ProduceUrlCollection(templateUrl, totalCount);
         }
 
         private IEnumerable<string> ProduceUrlCollection(string t, int count, string strInEnd = "", bool isFix2 = false)
@@ -67,17 +61,20 @@ namespace SpiderForMZTuCom
         {
             return HtmlNode.CreateNode(node.OuterHtml);
         }
-        public override async Task<IEnumerable<string>> _2GetTuJiFromListPageUrl(string listPageUrl)
+
+        public async Task<IEnumerable<Tuple<string, string>>> _2GetTuJiFromListPageUrl(string listPageUrl)
         {
             HtmlDocument d = await GetHtmlDocumentFromUrl(listPageUrl);
             var nodes = d.DocumentNode.SelectNodes("//ul[@id='pins']/li");
-            List<string> ls = new List<string>();
+            List<Tuple<string, string>> ls = new List<Tuple<string, string>>();
             foreach (var item in nodes)
             {
-                var u = item.ChildNodes[1].FirstChild.GetAttributeValue("href", "");
-                if (!string.IsNullOrEmpty(u))
+                var a = item.ChildNodes[1].FirstChild;
+                var key= a.InnerText;
+                var val = a.GetAttributeValue("href", "");
+                if (!string.IsNullOrEmpty(val))
                 {
-                    ls.Add(u);
+                    ls.Add(Tuple.Create(key,val));
                 }
             }
             return ls;
@@ -85,51 +82,112 @@ namespace SpiderForMZTuCom
 
         private static async Task<HtmlDocument> GetHtmlDocumentFromUrl(string listPageUrl)
         {
-            WebClient c = new WebClient();
-            var res = await MySpiderHelper.GetHtmlPage(listPageUrl);
-            HtmlAgilityPack.HtmlDocument d = new HtmlAgilityPack.HtmlDocument();
+            var res = await GetHtmlPage(listPageUrl);
+            var d = new HtmlDocument();
             d.LoadHtml(res);
             return d;
         }
 
-        public override async Task<IEnumerable<string>> _3GetAllImgUrlInTuJi(string tuJiUrl)
+        public async Task<IEnumerable<string>> _3GetAllImgUrlInTuJi(string tuJiUrl)
         {
             //1.获取模板路径
             var d = await GetHtmlDocumentFromUrl(tuJiUrl);
             var baseNode = d.DocumentNode.SelectSingleNode("//div[@class='main-image']");
             var firstUrl = baseNode.SelectNodes("//img").First().GetAttributeValue("src", "");
-            var templateUrl = firstUrl.Replace("01.jpg", "");
             //2.获取总数
             var lastUrl = baseNode.SelectSingleNode("//div[@class='pagenavi']/a[last()-1]").InnerText;
-            var totalCount = int.Parse(lastUrl);
-            //3.拼接集合返回
-            return ProduceUrlCollection(templateUrl, totalCount, ".jpg", true);
+            int totalCount;
+            if (!int.TryParse(lastUrl, out totalCount))
+            {
+                totalCount = 1;
+            }
+            if (totalCount == 1)
+            {
+                var pp = await GetHtmlDocumentFromUrl(tuJiUrl);
+                var baseNodepp = pp.DocumentNode.SelectSingleNode("//div[@class='main-image']");
+                var imgUrls = baseNodepp.SelectNodes("//img").Cast<HtmlNode>().Select(m => m.GetAttributeValue("src", ""));
+                return imgUrls;
+            }
+            if (firstUrl.EndsWith("01.jpg"))
+            {
+                var templateUrl = firstUrl.Replace("01.jpg", "");
+                //3.拼接集合返回
+                return ProduceUrlCollection(templateUrl, totalCount, ".jpg", true);
+            }
+            else
+            {
+                var tujis = GetAllTuJiUrl(tuJiUrl, totalCount);
+                return await GetAllImages(tujis);
+            }
+
         }
 
+        private async Task<IEnumerable<string>> GetAllImages(List<string> tujis)
+        {
+            var res = new List<string>();
+            foreach (var item in tujis)
+            {
+                Thread.Sleep(200);
+                var d = await GetHtmlDocumentFromUrl(item);
+                var baseNode = d.DocumentNode.SelectSingleNode("//div[@class='main-image']");
+                var firstUrl = baseNode.SelectNodes("//img").First().GetAttributeValue("src", "");
+                res.Add(firstUrl);
+            }
+            return res;
+        }
 
-        public override async Task<string> GetFileSavePath(string tuJiUrl)
+        private List<string> GetAllTuJiUrl(string tuJiUrl, int totalCount)
+        {
+            var res = new List<string>();
+            res.Add(tuJiUrl);
+            for (int i = 2; i < totalCount; i++)
+            {
+                res.Add(tuJiUrl + "/" + i);
+            }
+            return res;
+        }
+
+        public async Task<string> GetFileSaveDirectoryName(string tuJiUrl)
         {
             var d = await GetHtmlDocumentFromUrl(tuJiUrl);
-            var res = HttpUtility.HtmlDecode(d.DocumentNode.SelectSingleNode("//div[@class='currentpath']").InnerText).Replace("当前位置:", "").Replace(" » ", "\\");
-            return ConfigurationManager.AppSettings["FileSavePath"] + res;
+            var res = HttpUtility.HtmlDecode(d.DocumentNode.SelectSingleNode("//div[@class='currentpath']").InnerText).Replace("当前位置:", "")
+                .Split('»').Last().Trim();
+            return res;
         }
 
 
         public static async Task<string> GetHtmlPage(string url)
         {
-            HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
+            HttpWebRequest req = (HttpWebRequest)WebRequest.Create(url);
             string resStr = "";
             req.UserAgent = "IE";
-            var res = await req.GetResponseAsync();
+            req.Headers.Add(HttpRequestHeader.AcceptEncoding, "gzip");
+            var res = (await req.GetResponseAsync()) as HttpWebResponse;
             var resStream = res.GetResponseStream();
 
-            using (var reader = new StreamReader(resStream))
+            if (resStream != null)
             {
-                resStr = await reader.ReadToEndAsync();
-            }
+                if (res.ContentEncoding.ToLower().Contains("gzip"))
+                {
+                    using (GZipStream gzipReader = new GZipStream(resStream, CompressionMode.Decompress))
+                    {
+                        using (var reader = new StreamReader(gzipReader))
+                        {
+                            resStr = await reader.ReadToEndAsync();
+                        }
+                    }
+                }
+                else
+                {
+                    using (var reader = new StreamReader(resStream))
+                    {
+                        resStr = await reader.ReadToEndAsync();
+                    }
+                }
 
-            res.Dispose();
-            resStream.Dispose();
+                res.Dispose();
+                resStream.Dispose();
+            }
 
             return resStr;
         }

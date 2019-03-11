@@ -96,11 +96,13 @@ namespace SpiderForBeautyLegMM
 
         private static async Task<HtmlDocument> GetHtmlDocumentFromUrl(string listPageUrl)
         {
-            WebClient c = new WebClient();
-            var res = await MySpiderHelper.GetHtmlPage(listPageUrl);
-            HtmlDocument d = new HtmlDocument();
-            d.LoadHtml(res);
-            return d;
+            using (WebClient c = new WebClient())
+            { 
+                var res = await MySpiderHelper.GetHtmlPage(listPageUrl);
+                HtmlDocument d = new HtmlDocument();
+                d.LoadHtml(res);
+                return d;
+            }
         }
 
         public override async Task<IEnumerable<string>> _3GetAllImgUrlInTuJi(string tuJiUrl)
@@ -164,7 +166,7 @@ namespace SpiderForBeautyLegMM
         }
 
 
-        public override async Task<string> GetFileSavePath(string tuJiUrl)
+        public override async Task<string> GetFileSaveDirectoryName(string tuJiUrl)
         {
             var d = await GetHtmlDocumentFromUrl(tuJiUrl);
             var res = HttpUtility.HtmlDecode(d.DocumentNode.SelectSingleNode("//div[@class='currentpath']").InnerText).Replace("当前位置:", "").Replace(" » ", "\\");

@@ -80,6 +80,7 @@ namespace SpiderForUmei
                     continue;
                 }
             }
+            c.Dispose();
             MessageBox.Show("下载完成！");
         }
     }

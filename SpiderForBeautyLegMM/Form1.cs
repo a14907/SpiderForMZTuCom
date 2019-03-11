@@ -53,28 +53,30 @@ namespace SpiderForBeautyLegMM
             {
                 imgs = await mySp._3GetAllImgUrlInTuJi(url);
             }
-            WebClient c = new WebClient();
-            int index = 0;
-            foreach (var imgUrl in imgs)
+            using (WebClient c = new WebClient())
             {
-                var dName = Path.Combine(folder, imgsName);
-                if (!Directory.Exists(dName))
+                int index = 0;
+                foreach (var imgUrl in imgs)
                 {
-                    Directory.CreateDirectory(dName);
-                }
-                var fileName = Path.Combine(dName, Path.GetFileName(imgUrl));
-                try
-                {
-                    await c.DownloadFileTaskAsync("http://www.beautylegmm.com" + imgUrl, fileName);
-                    tbProgress.Text = (++index).ToString();
-                }
-                catch (Exception ex)
-                {
-                    if (File.Exists(fileName))
+                    var dName = Path.Combine(folder, imgsName);
+                    if (!Directory.Exists(dName))
                     {
-                        File.Delete(fileName);
+                        Directory.CreateDirectory(dName);
                     }
-                    continue;
+                    var fileName = Path.Combine(dName, Path.GetFileName(imgUrl));
+                    try
+                    {
+                        await c.DownloadFileTaskAsync("http://www.beautylegmm.com" + imgUrl, fileName);
+                        tbProgress.Text = (++index).ToString();
+                    }
+                    catch (Exception ex)
+                    {
+                        if (File.Exists(fileName))
+                        {
+                            File.Delete(fileName);
+                        }
+                        continue;
+                    }
                 }
             }
             MessageBox.Show("下载完成！");

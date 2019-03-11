@@ -100,6 +100,7 @@ namespace SpiderForMZTuCom
             var res = await MySpiderHelper.GetHtmlPage(listPageUrl);
             HtmlDocument d = new HtmlDocument();
             d.LoadHtml(res);
+            c.Dispose();
             return d;
         }
 
@@ -170,7 +171,7 @@ namespace SpiderForMZTuCom
         }
 
 
-        public override async Task<string> GetFileSavePath(string tuJiUrl)
+        public override async Task<string> GetFileSaveDirectoryName(string tuJiUrl)
         {
             var d = await GetHtmlDocumentFromUrl(tuJiUrl);
             var res = HttpUtility.HtmlDecode(d.DocumentNode.SelectSingleNode("//div[@class='currentpath']").InnerText).Replace("当前位置:", "").Replace(" » ", "\\");

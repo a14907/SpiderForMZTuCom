@@ -21,9 +21,11 @@ namespace BaseSpiderForImgWeb
         {
             try
             {
-                WebClient c = new WebClient();
-                await c.DownloadFileTaskAsync(imgUrl, fileName);
-                return true;
+                using (WebClient c = new WebClient())
+                {
+                    await c.DownloadFileTaskAsync(imgUrl, fileName);
+                    return true;
+                }
             }
             catch (Exception e)
             {
@@ -34,9 +36,11 @@ namespace BaseSpiderForImgWeb
         {
             try
             {
-                WebClient c = new WebClient();
-                await c.DownloadFileTaskAsync(imgUrl, fileName);
-                return true;
+                using (WebClient c = new WebClient())
+                {
+                    await c.DownloadFileTaskAsync(imgUrl, fileName);
+                    return true;
+                }
             }
             catch (Exception e)
             {
@@ -45,7 +49,7 @@ namespace BaseSpiderForImgWeb
         }
         public abstract Task<IEnumerable<string>> _3GetAllImgUrlInTuJi(string tuJiUrl);
         public abstract Task<IEnumerable<string>> _1GetAllListPageUrlFromMainPage(string mainPageUrl);
-        public abstract Task<string> GetFileSavePath(string tuJiUrl);
+        public abstract Task<string> GetFileSaveDirectoryName(string tuJiUrl);
         public abstract Task<IEnumerable<string>> _2GetTuJiFromListPageUrl(string listPageUrl);
     }
 }

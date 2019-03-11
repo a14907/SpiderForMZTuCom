@@ -32,7 +32,6 @@
             this.btnUpdate = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.textBox2 = new System.Windows.Forms.TextBox();
-            this.textBox3 = new System.Windows.Forms.TextBox();
             this.btnDownload = new System.Windows.Forms.Button();
             this.textBox4 = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -40,6 +39,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.button1 = new System.Windows.Forms.Button();
             this.lbShow = new System.Windows.Forms.ListBox();
+            this.tbCheckCount = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // btnInitDownLoad
@@ -81,15 +81,6 @@
             this.textBox2.Name = "textBox2";
             this.textBox2.Size = new System.Drawing.Size(74, 21);
             this.textBox2.TabIndex = 2;
-            // 
-            // textBox3
-            // 
-            this.textBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox3.Location = new System.Drawing.Point(436, 14);
-            this.textBox3.Name = "textBox3";
-            this.textBox3.Size = new System.Drawing.Size(74, 21);
-            this.textBox3.TabIndex = 2;
             // 
             // btnDownload
             // 
@@ -152,6 +143,16 @@
             this.lbShow.Size = new System.Drawing.Size(355, 268);
             this.lbShow.TabIndex = 5;
             // 
+            // tbCheckCount
+            // 
+            this.tbCheckCount.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbCheckCount.Location = new System.Drawing.Point(320, 50);
+            this.tbCheckCount.Name = "tbCheckCount";
+            this.tbCheckCount.Size = new System.Drawing.Size(74, 21);
+            this.tbCheckCount.TabIndex = 2;
+            this.tbCheckCount.Text = "2";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -164,8 +165,8 @@
             this.Controls.Add(this.btnDownload);
             this.Controls.Add(this.tbKeyWords);
             this.Controls.Add(this.textBox4);
-            this.Controls.Add(this.textBox3);
             this.Controls.Add(this.textBox2);
+            this.Controls.Add(this.tbCheckCount);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.btnUpdate);
             this.Controls.Add(this.btnInitDownLoad);
@@ -184,7 +185,6 @@
         private System.Windows.Forms.Button btnUpdate;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.TextBox textBox2;
-        private System.Windows.Forms.TextBox textBox3;
         private System.Windows.Forms.Button btnDownload;
         private System.Windows.Forms.TextBox textBox4;
         private System.Windows.Forms.Label label1;
@@ -192,6 +192,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.ListBox lbShow;
+        private System.Windows.Forms.TextBox tbCheckCount;
     }
 }
 
