@@ -88,10 +88,26 @@ namespace SpiderForMZTuCom
 
         private static async Task<HtmlDocument> GetHtmlDocumentFromUrl(string listPageUrl)
         {
-            var res = await GetHtmlPage(listPageUrl);
-            var d = new HtmlDocument();
-            d.LoadHtml(res);
-            return d;
+            for (int i = 0; i < 3; i++)
+            {
+                try
+                {
+                    var res = await GetHtmlPage(listPageUrl);
+                    var d = new HtmlDocument();
+                    d.LoadHtml(res);
+                    return d;
+                }
+                catch (WebException ex)
+                {
+                    if (ex.Response is HttpWebResponse response && (int)response.StatusCode == 429)
+                    {
+                        await Task.Delay(TimeSpan.FromSeconds(6));
+                        continue;
+                    }
+                    throw;
+                }
+            }
+            throw new Exception("重试次数超过3次：" + listPageUrl);
         }
 
         public async Task<IEnumerable<string>> _3GetAllImgUrlInTuJi(string tuJiUrl)

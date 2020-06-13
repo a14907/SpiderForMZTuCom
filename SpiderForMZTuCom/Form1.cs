@@ -184,7 +184,7 @@ namespace SpiderForMZTuCom
             MessageBox.Show(@"下载完成！");
         }
 
-        private System.Threading.SemaphoreSlim _downloadSemaphoreSlim = new System.Threading.SemaphoreSlim(0, 6);
+        private System.Threading.SemaphoreSlim _downloadSemaphoreSlim = new System.Threading.SemaphoreSlim(6, 6);
         private async Task DownLoadTuJi(string kw, string folder)
         {
 
@@ -215,25 +215,36 @@ namespace SpiderForMZTuCom
             }
             foreach (var url in imgs)
             {
-                try
+                for (int i = 0; i < 3; i++)
                 {
-                    if (!Directory.Exists(folder + "\\" + kw))
+                    try
                     {
-                        Directory.CreateDirectory(folder + "\\" + kw);
+                        await _downloadSemaphoreSlim.WaitAsync();
+                        if (!Directory.Exists(folder + "\\" + kw))
+                        {
+                            Directory.CreateDirectory(folder + "\\" + kw);
+                        }
+                        MakeSureHeaders(c.Headers);
+                        await c.DownloadFileTaskAsync(url, folder + "\\" + kw + "\\" + Path.GetFileName(url));
+                        index++;
+                        textBox4.Text = imgPageCount + "/" + index;
+                        break;
                     }
-                    MakeSureHeaders(c.Headers);
-
-                    await _downloadSemaphoreSlim.WaitAsync();
-
-                    await c.DownloadFileTaskAsync(url, folder + "\\" + kw + "\\" + Path.GetFileName(url));
-
-                    _downloadSemaphoreSlim.Release();
-
-                    index++;
-                    textBox4.Text = imgPageCount + "/" + index;
-                }
-                catch (Exception)
-                {
+                    catch (WebException ex)
+                    {
+                        if (ex.Response is HttpWebResponse response && (int)response.StatusCode == 429)
+                        {
+                            await Task.Delay(TimeSpan.FromSeconds(3));
+                            continue;
+                        }
+                    }
+                    catch (Exception)
+                    {
+                    }
+                    finally
+                    {
+                        _downloadSemaphoreSlim.Release();
+                    }
                 }
             }
             c.Dispose();
