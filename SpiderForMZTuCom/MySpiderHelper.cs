@@ -11,6 +11,8 @@ using System.Text;
 using System.IO.Compression;
 using System.Threading;
 using System;
+using System.Security.Cryptography.X509Certificates;
+using System.Net.Security;
 
 namespace SpiderForMZTuCom
 {
@@ -70,11 +72,15 @@ namespace SpiderForMZTuCom
             foreach (var item in nodes)
             {
                 var a = item.ChildNodes[1].FirstChild;
-                var key= a.InnerText;
+                if (a == null)
+                {
+                    continue;
+                }
+                var key = a.InnerText;
                 var val = a.GetAttributeValue("href", "");
                 if (!string.IsNullOrEmpty(val))
                 {
-                    ls.Add(Tuple.Create(key,val));
+                    ls.Add(Tuple.Create(key, val));
                 }
             }
             return ls;
@@ -161,6 +167,7 @@ namespace SpiderForMZTuCom
             HttpWebRequest req = (HttpWebRequest)WebRequest.Create(url);
             string resStr = "";
             req.UserAgent = "IE";
+            req.ServerCertificateValidationCallback = (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) => { return true; };
             req.Headers.Add(HttpRequestHeader.AcceptEncoding, "gzip");
             var res = (await req.GetResponseAsync()) as HttpWebResponse;
             var resStream = res.GetResponseStream();

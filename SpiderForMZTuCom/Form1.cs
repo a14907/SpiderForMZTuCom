@@ -165,12 +165,6 @@ namespace SpiderForMZTuCom
 
             if (lbShow.SelectedItem == null)
             {
-                //如果未选择则下载全部，一次最多下载20
-                if (lbShow.Items.Count > 20)
-                {
-                    MessageBox.Show("一次最多下载20个");
-                    return;
-                }
                 if (lbShow.Items.Count == 0)
                 {
                     MessageBox.Show("未选择");
@@ -190,6 +184,7 @@ namespace SpiderForMZTuCom
             MessageBox.Show(@"下载完成！");
         }
 
+        private System.Threading.SemaphoreSlim _downloadSemaphoreSlim = new System.Threading.SemaphoreSlim(0, 6);
         private async Task DownLoadTuJi(string kw, string folder)
         {
 
@@ -227,7 +222,13 @@ namespace SpiderForMZTuCom
                         Directory.CreateDirectory(folder + "\\" + kw);
                     }
                     MakeSureHeaders(c.Headers);
+
+                    await _downloadSemaphoreSlim.WaitAsync();
+
                     await c.DownloadFileTaskAsync(url, folder + "\\" + kw + "\\" + Path.GetFileName(url));
+
+                    _downloadSemaphoreSlim.Release();
+
                     index++;
                     textBox4.Text = imgPageCount + "/" + index;
                 }
@@ -250,6 +251,22 @@ namespace SpiderForMZTuCom
                 {
                     headers.Add(HttpRequestHeader.Referer, "https://www.mzitu.com");
                 }
+            }
+            if (!target.Contains("Sec-Fetch-Site"))
+            {
+                headers.Add("Sec-Fetch-Site", "cross-site");
+            }
+            if (!target.Contains("Sec-Fetch-Mode"))
+            {
+                headers.Add("Sec-Fetch-Mode", "no-cors");
+            }
+            if (!target.Contains("Sec-Fetch-Dest"))
+            {
+                headers.Add("Sec-Fetch-Dest", "image");
+            }
+            if (!target.Contains("User-Agent"))
+            {
+                headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36");
             }
         }
 
