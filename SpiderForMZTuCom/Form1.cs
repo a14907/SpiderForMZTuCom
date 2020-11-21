@@ -208,7 +208,7 @@ namespace SpiderForMZTuCom
             int imgPageCount = imgs.Count();
 
             WebClient c = new WebClient();
-            char[] cs = { '\\', '/', '*', ':', '?', '<', '>', '|' };
+            char[] cs = { '\\', '/', '*', ':', '?', '<', '>', '|' , "\""};
             foreach (var item in cs)
             {
                 kw = kw.Replace(item, '_');
